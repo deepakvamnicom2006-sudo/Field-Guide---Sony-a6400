@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="a6400 Field">
+<meta name="theme-color" content="#2D4BA0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>a6400 Field Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: one-thumb phone app — sticky header, scrolling card stack, fixed bottom tab bar */
+  --bg:#F3F5FA; --surface:#FFFFFF; --ink:#22252B; --muted:#5E6470; --line:#D6DCEA;
+  --accent:#2D4BA0; --accent-soft:#DCE3F3; --warn:#9C4A10; --warn-soft:#FBEBDD;
+  --display:"Poppins", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151C; --surface:#1B2029; --ink:#E9ECF2; --muted:#A3AABA; --line:#2E3646;
+    --accent:#8FA8EC; --accent-soft:#25304A; --warn:#F2B37E; --warn-soft:#3A2A1E; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151C; --surface:#1B2029; --ink:#E9ECF2; --muted:#A3AABA; --line:#2E3646;
+  --accent:#8FA8EC; --accent-soft:#25304A; --warn:#F2B37E; --warn-soft:#3A2A1E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.4 var(--body);-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 8px;border-bottom:1px solid var(--line)}
+header h1{font:600 19px/1.2 var(--display);margin:0;letter-spacing:.2px}
+header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+main{padding:12px 16px calc(env(safe-area-inset-bottom) + 92px);max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.view{display:none;flex-direction:column;gap:12px}
+.view.on{display:flex}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(env(safe-area-inset-bottom) + 6px)}
+nav a{color:var(--muted);text-decoration:none;font:600 11.5px var(--display);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border-radius:10px}
+nav a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav a.on{color:var(--accent);background:var(--accent-soft)}
+nav a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h2{font:600 13px var(--display);letter-spacing:.8px;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field:last-child{margin-bottom:0}
+label{font-weight:700;font-size:14px;color:var(--muted)}
+select{font:600 17px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 12px) 52%;background-size:6px 6px;background-repeat:no-repeat;padding-right:34px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
+.seg button{font:600 15px var(--display);border:0;border-radius:8px;padding:9px 4px;background:transparent;color:var(--muted)}
+.seg button.on{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .seg button.on{color:#12151C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button.on{color:#12151C}}
+.out{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:42% 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .k{color:var(--muted);font-size:14.5px}
+.row .k small{display:block;font-size:11.5px;letter-spacing:.3px;color:var(--accent);font-weight:700}
+.row .v{font-weight:700;font-variant-numeric:tabular-nums}
+.big{font:700 26px var(--display);color:var(--accent);line-height:1.1}
+.hero{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tile{background:var(--accent-soft);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile span{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tile b{font:700 18px var(--display);color:var(--ink);overflow-wrap:anywhere}
+.note{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:15px}
+.tip{color:var(--muted);font-size:15px;margin:6px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:7px 11px;font:600 14px var(--body);color:var(--ink);display:flex;align-items:center;gap:6px}
+.chip i{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.2);display:inline-block}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .chip.on{color:#12151C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.on{color:#12151C}}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.slot{font:700 16px var(--display);color:var(--accent);background:var(--accent-soft);border-radius:9px;min-width:42px;text-align:center;padding:6px 4px}
+.item b{display:block}
+.item p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.rec{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;color:inherit}
+.rec .n{font:700 18px var(--display);border-radius:9px;padding:6px 0;text-align:center}
+.rec b{display:block;font-size:16px}
+.rec small{color:var(--muted);font-size:13.5px}
+.back{font:600 15px var(--display);color:var(--accent);background:none;border:0;padding:4px 0;text-align:left}
+.pp{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.pp div{display:flex;justify-content:space-between;gap:6px;padding:7px 0;border-top:1px solid var(--line);font-size:14.5px}
+.pp div span{color:var(--muted)}
+.pp div b{text-align:right;font-variant-numeric:tabular-nums}
+.pp div.wide{grid-column:1/-1}
+.ch{font:700 10.5px var(--display);background:var(--accent-soft);color:var(--accent);border-radius:5px;padding:2px 5px;margin-right:6px;white-space:nowrap}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--line);padding:5px 6px;text-align:center;white-space:nowrap}
+th{background:var(--accent-soft);color:var(--accent);font:600 11.5px var(--display);white-space:normal;min-width:62px}
+td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:var(--surface);white-space:normal;min-width:130px;z-index:1}
+th:first-child{background:var(--accent-soft)}
+td b{color:var(--accent)}
+.muted{color:var(--muted)}
+h3{font:600 15px var(--display);margin:4px 0}
+.ico{display:inline-flex;vertical-align:middle;flex:none}
+.ico svg{display:block}
+.film{height:14px;margin-top:8px;border-radius:3px;background:var(--line);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;padding:3px 4px;position:relative}
+.film i{border-radius:2px}
+.film:before,.film:after{content:"";position:absolute;left:4px;right:4px;height:2px;background:repeating-linear-gradient(90deg,var(--bg) 0 4px,transparent 4px 10px)}
+.film:before{top:0}.film:after{bottom:0}
+.scene{display:flex;align-items:center;gap:12px;border-radius:12px;padding:10px 12px;color:#22252B}
+.scene b{display:block;font:600 15px var(--display)}
+.scene span{font-size:13.5px;opacity:.8}
+.viz{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vz{border:1px solid var(--line);border-radius:10px;padding:7px 8px 4px;background:var(--bg)}
+.vz .h{display:flex;justify-content:space-between;font:600 10.5px var(--display);letter-spacing:.6px;color:var(--accent);text-transform:uppercase}
+.vz .h b{font:700 13px var(--display);letter-spacing:0;color:var(--ink);text-transform:none}
+.vz svg{width:100%;height:50px;display:block;overflow:visible}
+.sw{display:flex;gap:3px;margin-top:6px}
+.sw i{flex:1;height:5px;border-radius:2px}
+@media (prefers-reduced-motion: no-preference){.view.on{animation:fade .18s ease}}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Final Settings</h1>
+  <p id="subtitle">Sony a6400 · E 50mm F1.8 OSS · Deepak Kumar</p>
+  <div class="film" id="film" aria-hidden="true"></div>
+</header>
+<main>
+<!-- SETTINGS -->
+<section class="view" id="v-settings">
+  <div class="card">
+    <div class="field"><label>Base</label><div class="seg" id="base"><button data-v="Classic">Classic · PP1</button><button data-v="Dreamy">Dreamy · PP2</button></div></div>
+    <div class="field"><label>Location</label><div class="seg" id="loc"><button data-v="Indoor">Indoor</button><button data-v="Outdoor">Outdoor</button></div></div>
+    <div class="field"><label for="light">Light on the subject</label><select id="light"></select></div>
+    <div class="field"><label for="genre">Genre</label><select id="genre"></select></div>
+    <div class="field"><label for="dir">Light direction (tip only)</label><select id="dir"></select></div>
+  </div>
+  <div id="fsout" class="view on"></div>
+</section>
+<!-- GARDEN -->
+<section class="view" id="v-garden">
+  <div class="card">
+    <div class="field"><label>Style</label><div class="seg" id="gstyle"><button data-v="Classic">Classic</button><button data-v="Dreamy">Dreamy</button></div></div>
+    <div class="field"><label>Flower colour / subject</label><div class="chips" id="gcol"></div></div>
+    <div class="field"><label for="glight">Light</label><select id="glight"></select></div>
+    <div class="field"><label for="ggenre">Genre</label><select id="ggenre"></select></div>
+  </div>
+  <div id="gout" class="view on"></div>
+</section>
+<!-- FIELD -->
+<section class="view" id="v-field"></section>
+<!-- RECIPES -->
+<section class="view" id="v-recipes">
+  <div class="chips" id="rfilter"></div>
+  <div class="list" id="rlist"></div>
+  <div id="rdetail" class="view"></div>
+</section>
+<!-- GUIDE -->
+<section class="view" id="v-guide"></section>
+</main>
+<nav id="tabs">
+  <a href="#settings" data-t="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="4"/><path d="M4 8h3l2-3h6l2 3h3v11H4z"/></svg>Settings</a>
+  <a href="#garden" data-t="garden"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="2.5"/><path d="M12 6.5c0-3 3-3 3 0M12 6.5c0-3-3-3-3 0M14.5 9c3 0 3 3 0 3M9.5 9c-3 0-3 3 0 3M12 11.5V21M12 17c-2-2-5-2-6-1M12 18c2-2 5-2 6-1"/></svg>Garden</a>
+  <a href="#field" data-t="field"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>30 s</a>
+  <a href="#recipes" data-t="recipes"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Recipes</a>
+  <a href="#guide" data-t="guide"><svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M9 12h6M9 16h6M14 4v4h5"/></svg>Guide</a>
+</nav>
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = {get(k,d){try{const v=localStorage.getItem("a64."+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+               set(k,v){try{localStorage.setItem("a64."+k,JSON.stringify(v));}catch(e){}}};
+let D = null;
+const TITLES = {settings:["Final Settings","Pick base, light and genre"],garden:["Garden Finder","Flowers · portraits · woodland"],
+  field:["30-Second Rule","Dial to MR › slot › shoot"],recipes:["Recipes","25 recipes + 2 bases · Sony menu wording"],guide:["Guide","Exposure, direction, matrices"]};
+function seg(id, val, cb){
+  const el = $(id);
+  el.querySelectorAll("button").forEach(b => {
+    b.classList.toggle("on", b.dataset.v === val);
+    b.onclick = () => { el.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); cb(b.dataset.v); };
+  });
+}
+function fill(sel, items, val){
+  sel.innerHTML = items.map(x => `<option${x===val?" selected":""}>${esc(x)}</option>`).join("");
+  if (!items.includes(val)) sel.selectedIndex = 0;
+}
+function row(k, v, sub){ return `<div class="row"><div class="k">${sub?`<small>${esc(sub)}</small>`:""}${esc(k)}</div><div class="v">${esc(v)}</div></div>`; }
+
+
+/* ---------------- icons & graphics */
+const IC = {
+ sun:'<circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+ sunlow:'<path d="M6 16a6 6 0 0 1 12 0z" fill="currentColor" stroke="none"/><path d="M2 18.5h20M12 5v2.5M5.5 8.5l1.7 1.7M18.5 8.5l-1.7 1.7"/>',
+ cloud:'<path d="M7 18h10.5a4 4 0 0 0 .6-7.9A5.5 5.5 0 0 0 7.6 9 4.5 4.5 0 0 0 7 18z" fill="currentColor" stroke="none"/>',
+ fog:'<path d="M4 7h14M3 11h15M6 15h15M4 19h13"/>',
+ haze:'<circle cx="12" cy="9" r="4"/><path d="M3 15.5h18M5 19.5h14"/>',
+ shade:'<circle cx="12" cy="9.5" r="6.5" fill="currentColor" stroke="none"/><path d="M12 15v6" stroke-width="2.6"/>',
+ moon:'<path d="M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5z" fill="currentColor" stroke="none"/>',
+ bulb:'<circle cx="12" cy="10" r="5.5"/><path d="M9.5 19h5M10 21.5h4M10 15.5v3.5M14 15.5v3.5"/>',
+ tube:'<rect x="2.5" y="8" width="19" height="5" rx="2.5"/><path d="M7 16v3M12 16v3M17 16v3"/>',
+ flame:'<path d="M12 2.5c4 4.5 5 7.5 5 10a5 5 0 0 1-10 0c0-2.5 1-5.5 5-10z" fill="currentColor" stroke="none"/><path d="M6 21.5h12"/>',
+ flash:'<path d="M13.5 2 6 13h5l-1.5 9L18 10.5h-5.5z" fill="currentColor" stroke="none"/>',
+ window:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 3v18M4 12h16"/>',
+ flower:'<g fill="currentColor" stroke="none"><circle cx="12" cy="6.5" r="3.4"/><circle cx="16.8" cy="10" r="3.4"/><circle cx="15" cy="15.4" r="3.4"/><circle cx="9" cy="15.4" r="3.4"/><circle cx="7.2" cy="10" r="3.4"/></g><circle cx="12" cy="11.2" r="2.2" fill="var(--surface)" stroke="none"/>',
+ leaf:'<path d="M4 20C4 9 10 4 20 4c0 10-5 16-16 16z" fill="currentColor" stroke="none"/><path d="M5.5 18.5 15 9" stroke="var(--surface)"/>',
+ person:'<circle cx="12" cy="7.5" r="4" fill="currentColor" stroke="none"/><path d="M4 21.5c0-5 3.6-8 8-8s8 3 8 8z" fill="currentColor" stroke="none"/>',
+ camera:'<rect x="2.5" y="6.5" width="19" height="14" rx="2.5"/><circle cx="12" cy="13.5" r="4"/><path d="M8.5 6.5 10 4h4l1.5 2.5"/>',
+ field:'<path d="M2 14h20M3 18.5h18"/><g fill="currentColor" stroke="none"><circle cx="5" cy="10.5" r="2"/><circle cx="10" cy="10.5" r="2"/><circle cx="15" cy="10.5" r="2"/><circle cx="20" cy="10.5" r="2"/></g>',
+ silhouette:'<circle cx="12" cy="10" r="7.5"/><circle cx="12" cy="11" r="2.4" fill="currentColor" stroke="none"/><path d="M9 21.5v-5.5h6v5.5z" fill="currentColor" stroke="none"/>'
+};
+const ico = (k, sz, col) => `<span class="ico" style="color:${col||"var(--accent)"}"><svg width="${sz||20}" height="${sz||20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[k]||IC.sun}</svg></span>`;
+function kelvinRGB(K){
+  const t = K/100; let r,g,b;
+  r = t<=66 ? 255 : 329.7*Math.pow(t-60,-0.1332);
+  g = t<=66 ? 99.47*Math.log(t)-161.12 : 288.12*Math.pow(t-60,-0.0755);
+  b = t>=66 ? 255 : (t<=19 ? 0 : 138.5*Math.log(t-10)-305.04);
+  const f = v => Math.round(Math.max(0,Math.min(255,v)));
+  return `rgb(${f(r)},${f(g)},${f(b)})`;
+}
+let VZ = 0;
+function vizHTML(v, acc){
+  const gid = "kg" + (++VZ);
+  acc = acc || "var(--accent)";
+  const X = e => 10 + (Math.max(-2,Math.min(2,e)) + 2) / 4 * 180;
+  let ex = `<svg viewBox="0 0 200 46"><rect x="10" y="26" width="180" height="6" rx="3" fill="var(--line)"/><rect x="${X(0)}" y="26" width="${190-X(0)}" height="6" rx="3" fill="#F3D9C8"/>`;
+  [-2,-1,0,1,2].forEach(e => ex += `<line x1="${X(e)}" x2="${X(e)}" y1="22" y2="36" stroke="var(--muted)" stroke-width="1"/>`);
+  ex += `<text x="${X(-2)}" y="45" font-size="10" text-anchor="middle" fill="var(--muted)">-2</text><text x="${X(0)}" y="45" font-size="10" text-anchor="middle" fill="var(--muted)">0</text><text x="${X(2)}" y="45" font-size="10" text-anchor="middle" fill="var(--muted)">+2</text>`;
+  if (v.ev.length > 1) ex += `<rect x="${X(Math.min(...v.ev))}" y="25" width="${X(Math.max(...v.ev))-X(Math.min(...v.ev))}" height="8" rx="3" fill="${acc}"/>`;
+  const m = X(v.ev[0]); ex += `<path d="M${m} 22 l-6 -11 h12 z" fill="${acc}"/></svg>`;
+  let wb = `<svg viewBox="0 0 200 46"><defs><linearGradient id="${gid}">`;
+  for (let i=0;i<=10;i++) wb += `<stop offset="${i*10}%" stop-color="${kelvinRGB(2500+650*i)}"/>`;
+  const kx = 10 + (Math.min(9000,Math.max(2500,v.k)) - 2500) / 6500 * 180;
+  wb += `</linearGradient></defs><rect x="10" y="22" width="180" height="10" rx="5" fill="url(#${gid})" stroke="var(--line)"/><line x1="${kx}" x2="${kx}" y1="16" y2="38" stroke="var(--ink)" stroke-width="2.4"/><text x="10" y="45" font-size="10" fill="var(--muted)">2500K warm</text><text x="190" y="45" font-size="10" text-anchor="end" fill="var(--muted)">cool 9000K</text></svg>`;
+  const cols = {R:"#D9534F",G:"#4E9A5B",B:"#3E6FC7",C:"#3BB3C3",M:"#C1569B",Y:"#E2B33A"};
+  let dp = `<svg viewBox="0 0 200 46"><line x1="8" x2="192" y1="21" y2="21" stroke="var(--line)"/>`;
+  "RGBCMY".split("").forEach((ch,i) => { const val = v.depth[ch]||0, h = Math.max(1, Math.abs(val)*4.2), x = 14 + i*30;
+    dp += `<rect x="${x}" y="${val>=0?21-h:21}" width="20" height="${h}" rx="2" fill="${cols[ch]}"/><text x="${x+10}" y="44" font-size="10" text-anchor="middle" fill="var(--muted)">${ch}${val>0?"+"+val:(val<0?val:"")}</text>`; });
+  dp += `</svg>`;
+  const pt = v.kpt/100, lift = Math.max(0,v.bl)*0.012, kx2 = 0.82*pt, ky = lift + (1-lift)*pt*0.92, top = Math.min(1, ky + (1-kx2)*(0.55+0.08*v.ksl));
+  const P = (a,b) => `${(14 + a*172).toFixed(1)} ${(40 - b*36).toFixed(1)}`;
+  let tc = `<svg viewBox="0 0 200 46"><rect x="14" y="4" width="172" height="36" fill="none" stroke="var(--line)"/><line x1="14" y1="40" x2="186" y2="4" stroke="var(--line)" stroke-dasharray="3 3"/>
+    <path d="M${P(0,lift)} L${P(kx2,ky)} C${P(kx2+(1-kx2)*0.4, ky+(top-ky)*0.8)} ${P(0.92,top)} ${P(1,top)}" fill="none" stroke="${acc}" stroke-width="2.4"/><circle cx="${14+kx2*172}" cy="${40-ky*36}" r="3" fill="${acc}"/></svg>`;
+  return `<div class="viz">
+    <div class="vz"><div class="h">Exposure <b>${esc(v.evt)}</b></div>${ex}</div>
+    <div class="vz"><div class="h">White balance <b>${Math.round(v.k)}K</b></div>${wb}</div>
+    <div class="vz"><div class="h">Color depth</div>${dp}</div>
+    <div class="vz"><div class="h">Tone · knee <b>${Math.round(v.kpt)}% / ${v.ksl>0?"+":""}${v.ksl}</b></div>${tc}</div></div>`;
+}
+
+/* ---------------- Settings */
+const S = Object.assign({base:"Classic", loc:"Outdoor", light:"Haze / smog · golden hour (red sun)", genre:"Portrait", dir:"Backlight / rim light"}, store.get("fs", {}));
+function renderSettings(){
+  fill($("#light"), D.lights[S.loc], S.light); S.light = $("#light").value;
+  fill($("#genre"), D.genres[S.loc], S.genre); S.genre = $("#genre").value;
+  fill($("#dir"), ["(none)"].concat(D.directions.map(d => d.d)), S.dir); S.dir = $("#dir").value;
+  store.set("fs", S);
+  const r = D.fs[`${S.loc}|${S.light}|${S.genre}`];
+  const dr = S.base === "Dreamy";
+  let h = "";
+  if (!r || r.na){
+    h = `<div class="card"><div class="note">Silhouette needs a bright sky behind the subject. Pick another genre or a sky light.</div></div>`;
+  } else {
+    const lk = D.lightkind[S.light], gk = D.genrekind[S.genre];
+    h += `<div class="scene" style="background:${D.lightcol[S.light]}">${ico(lk, 30, "#2D4BA0")}<div><b>${esc(S.light)}</b><span>${esc(S.loc)} · WB ${esc(r.wb)}</span></div><span style="margin-left:auto">${ico(gk, 26, "#2D4BA0")}</span></div>`;
+    h += `<div class="card"><h2>Set these</h2><div class="hero">
+      <div class="tile"><span>Exp. Comp.</span><b>${esc(dr ? r.evd : r.ev)}</b></div>
+      <div class="tile"><span>Mode</span><b>${esc(r.mode.split(" ")[0])}</b></div>
+      <div class="tile"><span>ISO max</span><b>${esc(r.iso.replace("ISO AUTO · 100–","").replace("ISO 100 (fixed)","100 fixed"))}</b></div></div>
+      ${r.evnote?`<p class="tip">${esc(r.evnote)}</p>`:""}</div>`;
+    h += `<div class="card out"><h2>Dial-in · menu order</h2>
+      ${row("Picture Profile", dr ? "PP2 · Base B Dreamy" : "PP1 · Base A Classic", "CS1 11/14")}
+      ${row("Mode dial", r.mode, "DIAL")}
+      ${row("Aperture", dr ? r.apd : r.ap, "LENS")}
+      ${row("Focus Mode · Area", r.focus, "CS1 5/14")}
+      ${row("Exposure Comp.", dr ? r.evd : r.ev, "CS1 8/14")}
+      ${row("ISO", r.iso, "CS1 8/14")}
+      ${row("ISO AUTO Min. SS", r.ss, "CS1 8/14")}
+      ${row("Metering Mode", r.meter, "CS1 8/14")}
+      ${row("White Balance", "C.Temp./Filter " + r.wb, "CS1 11/14")}
+      ${row("Zebra Level", "100+ · no stripes on skin", "CS2 6/9")}</div>`;
+    h += `<div class="card"><h2>Exposure</h2>
+      ${row("Expose for", D.gexp[S.genre] || "the main subject.")}
+      ${row("Too dark?", "Open aperture › slower shutter to Min. SS › closer to the light › ISO last")}
+      ${r.low ? row("Low light", "Brace or rest the camera — at the ISO cap the shutter slows instead of underexposing.") : ""}
+      ${row("Never", "Exp. Comp. below 0 (except silhouette) · DRO · Cine gamma")}</div>`;
+    const base = D.recipes.find(q => q.num === (dr ? "B" : "A"));
+    h += `<div class="card"><h2>${dr ? "Base B · Dreamy" : "Base A · Classic"} profile</h2>${vizHTML(Object.assign({}, base.viz, {ev:[parseFloat(dr ? r.evd : r.ev) || 0], evt: dr ? r.evd : r.ev}), "var(--accent)")}<p class="tip">Exposure shows this scene's value; WB here is the base default — use the scene WB above.</p></div>`;
+    h += `<div class="card"><h2>Recipe shortcut</h2><p style="margin:0">${r.recipes.split(" ").map(n => {const x = D.recipes.find(q => q.num === n); return x ? `<b>${n}</b> ${esc(x.name)}` : n;}).join(" · ")}</p><p class="tip">If its scenario fits, use it as printed.</p></div>`;
+  }
+  const d = D.directions.find(x => x.d === S.dir);
+  if (d) h += `<div class="card"><h2>${esc(d.d)}</h2>${row("Position", d.pos)}${row("Expose", d.exp)}</div>`;
+  $("#fsout").innerHTML = h;
+}
+function initSettings(){
+  seg("#base", S.base, v => { S.base = v; renderSettings(); });
+  seg("#loc", S.loc, v => { S.loc = v; renderSettings(); });
+  $("#light").onchange = e => { S.light = e.target.value; renderSettings(); };
+  $("#genre").onchange = e => { S.genre = e.target.value; renderSettings(); };
+  $("#dir").onchange = e => { S.dir = e.target.value; renderSettings(); };
+  renderSettings();
+}
+
+/* ---------------- Garden */
+const G = Object.assign({style:"Classic", col:"Orange & gold", light:"Clear sun · morning / afternoon", genre:"Flower beds & gardens"}, store.get("g", {}));
+function renderGarden(){
+  const g = D.garden;
+  $("#gcol").innerHTML = g.colours.map(c => `<button class="chip${c.c===G.col?" on":""}" data-c="${esc(c.c)}"><i style="background:${c.sw}"></i>${esc(c.c)}</button>`).join("");
+  $("#gcol").querySelectorAll("button").forEach(b => b.onclick = () => { G.col = b.dataset.c; renderGarden(); });
+  fill($("#glight"), g.lights, G.light); G.light = $("#glight").value;
+  fill($("#ggenre"), g.genres, G.genre); G.genre = $("#ggenre").value;
+  store.set("g", G);
+  const r = g.map[`${G.col}|${G.light}|${G.genre}`];
+  const dr = G.style === "Dreamy";
+  let h = "";
+  if (!r || r.na){
+    h = `<div class="card"><div class="note">No light on the subject here — pick a lit spot.</div>${r?`<p class="tip">${esc(r.tip)}</p>`:""}</div>`;
+  } else {
+    const rec = dr ? r.rd : r.rc;
+    const cc = g.colours.find(c => c.c === G.col);
+    const gk2 = D.genrekind[G.genre], lk2 = D.lightkind[G.light];
+    h += `<div class="scene" style="background:${D.gardenlightcol[G.light]}">${ico(lk2, 30, "#2D4BA0")}<div><b>${esc(G.light)}</b><span>${esc(G.genre)}</span></div><span style="margin-left:auto;display:flex;gap:6px">${ico(gk2 === "flower" ? "flower" : gk2, 26, gk2 === "flower" ? cc.sw : "#2D4BA0")}</span></div>`;
+    const gr = D.recipes.find(q => q.num === rec[0].slice(0,2));
+    h += `<div class="card" style="${gr?`border-left:5px solid ${gr.accent}`:""}"><h2>Recipe</h2><div class="big" style="${gr?`color:${gr.accent}`:""}">${esc(rec.join(" · "))}</div>
+
+      <p class="tip">Load its PP slot (gamma Movie, Knee Manual). White Balance as in the recipe.</p>
+      ${gr ? `<button class="back" data-open="${gr.num}">Open recipe ${gr.num} ›</button>` : ""}</div>`;
+    if (gr) h += `<div class="card"><h2>${esc(gr.name)} profile</h2>${vizHTML(Object.assign({}, gr.viz, {ev:[parseFloat(dr ? r.evd : r.ev) || 0], evt: dr ? r.evd : r.ev}), gr.accent)}</div>`;
+    h += `<div class="card out"><h2>Dial-in</h2>
+      ${row("Mode dial", "A (Aperture Priority)", "DIAL")}
+      ${row("Aperture", r.ap, "LENS")}
+      ${row("Focus", r.focus, "CS1 5/14")}
+      ${row("Exposure Comp.", dr ? r.evd : r.ev, "CS1 8/14")}
+      ${row("ISO", "ISO AUTO · 100–" + r.iso, "CS1 8/14")}
+      ${row("Min. SS", r.ss + " or faster", "CS1 8/14")}</div>`;
+    h += `<div class="card"><h2>Light & colour</h2>${row("Light tip", r.tip)}${r.wo ? row("Watch out", r.wo) : ""}
+      ${row("Colour check", "First frame: DISP in playback → R/G/B histograms. A channel at the right edge → one step lower (never below 0).")}</div>`;
+  }
+  $("#gout").innerHTML = h;
+  $("#gout").querySelectorAll("[data-open]").forEach(b => b.onclick = () => { location.hash = "recipes"; setTimeout(() => showRecipe(b.dataset.open), 30); });
+}
+function initGarden(){
+  seg("#gstyle", G.style, v => { G.style = v; renderGarden(); });
+  $("#glight").onchange = e => { G.light = e.target.value; renderGarden(); };
+  $("#ggenre").onchange = e => { G.genre = e.target.value; renderGarden(); };
+  renderGarden();
+}
+
+/* ---------------- Field */
+function renderField(){
+  $("#v-field").innerHTML = `
+  <div class="card"><h2>MR slots · register once (CS1 4/14 › Memory)</h2><div class="list">
+    ${D.slots.map((s,i) => `<div class="item"><div class="slot">${esc(s.s)}</div><div><b style="display:flex;align-items:center;gap:7px">${ico(D.slotkind[i], 20)}${esc(s.u)}</b><p>${esc(s.w)}</p></div></div>`).join("")}</div></div>
+  <div class="card"><h2>At the scene · 30 seconds</h2><div class="list">
+    ${D.routine.map((s,i) => `<div class="item"><div class="slot">${i+1}</div><div><b>${esc(s.t)}</b><p>${esc(s.b)}</p></div></div>`).join("")}</div></div>
+  <div class="card out"><h2>Quick fixes</h2>${D.fixes.map(f => row(f.t, f.b)).join("")}</div>
+  <div class="card"><h2>Night before</h2><p style="margin:0">${esc(D.before)}</p></div>`;
+}
+
+/* ---------------- Recipes */
+let RF = "All";
+function renderRecipes(){
+  const groups = ["All","Base","Classic film","Dreamy","Winter outdoor","Winter garden"];
+  $("#rfilter").innerHTML = groups.map(g => `<button class="chip${g===RF?" on":""}" data-g="${g}">${g}</button>`).join("");
+  $("#rfilter").querySelectorAll("button").forEach(b => b.onclick = () => { RF = b.dataset.g; renderRecipes(); });
+  const list = D.recipes.filter(r => RF === "All" || (RF === "Base" ? r.label.startsWith("Base") : r.label === RF));
+  $("#rlist").innerHTML = list.map(r => `<button class="rec" data-n="${r.num}"><span class="n" style="background:${r.soft};color:${r.accent}">${r.num}</span><span><b>${esc(r.name)}</b><small>${esc(r.scen)}</small><span class="sw">${Object.entries(r.viz.depth).map(([k,v]) => `<i style="background:${({R:"#D9534F",G:"#4E9A5B",B:"#3E6FC7",C:"#3BB3C3",M:"#C1569B",Y:"#E2B33A"})[k]};opacity:${0.25+Math.min(1,Math.abs(v)/4)*0.75}"></i>`).join("")}</span></span></button>`).join("");
+  $("#rlist").querySelectorAll("button").forEach(b => b.onclick = () => showRecipe(b.dataset.n));
+}
+function showRecipe(n){
+  const r = D.recipes.find(x => x.num === n);
+  const ex = [["Expose for", r.expose],
+    ["Too dark?", r.sil ? "Subject black = correct. Sky dull? Slower shutter until the meter reads −1.0. ISO stays 100." : "Open aperture › slower shutter to Min. SS › closer to the light › ISO last"]];
+  if (r.flicker) ex.push(["Flicker", "Tube/LED/neon on the subject? Mode S at 1/100 (1/50 if the scale blinks)."]);
+  if (r.flowers) ex.push(["Flowers", "Strong reds/oranges/yellows: one step lower in sun; check R/G/B histogram (DISP)."]);
+  $("#rdetail").innerHTML = `
+  <button class="back" id="rback">‹ All recipes</button>
+  <div class="card" style="border-left:5px solid ${r.accent}"><div style="display:flex;gap:12px;align-items:center">
+    <span class="big" style="color:${r.accent}">${r.num}</span><div><h3 style="margin:0">${esc(r.name)}</h3><div class="muted" style="font-size:14px">${esc(r.sub)}</div></div></div>
+    <p class="tip"><b>Scenario:</b> ${esc(r.scen)} · ${esc(r.tag)}</p></div>
+  <div class="card"><h2>Look at a glance</h2>${vizHTML(r.viz, r.accent)}</div>
+  <div class="card"><h2>Picture Profile · CS1 11/14</h2><div class="pp">
+    ${r.pp.map(([k,v]) => `<div class="${k==="Adjust"||k==="Color Depth"?"wide":""}"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}</div></div>
+  <div class="card out"><h2>Dial-in order</h2>${r.dial.map(d => `<div class="row"><div class="k"><small>${esc(d.ch)}</small>${esc(d.l)}</div><div class="v">${esc(d.v)}</div></div>`).join("")}</div>
+  <div class="card out"><h2>Exposure</h2>${ex.map(e => row(e[0], e[1])).join("")}</div>
+  <div class="card"><h2>Field tip</h2><p style="margin:0">${esc(r.tip)}</p></div>
+  <div class="card"><h2>With flash · CS1 10/14</h2><p style="margin:0">${esc(r.flash)}</p></div>`;
+  $("#rlist").style.display = "none"; $("#rfilter").style.display = "none"; $("#rdetail").classList.add("on");
+  $("#rback").onclick = closeRecipe; window.scrollTo(0,0);
+}
+function closeRecipe(){ $("#rdetail").classList.remove("on"); $("#rlist").style.display = ""; $("#rfilter").style.display = ""; }
+
+/* ---------------- Guide */
+function matrixTable(loc){
+  const ls = D.lights[loc], gs = D.genres[loc];
+  return `<div class="scroll"><table><tr><th>Light</th>${gs.map(g => `<th>${ico(D.genrekind[g], 14)}<br>${esc(g)}</th>`).join("")}</tr>
+  ${ls.map(l => `<tr><td style="box-shadow:inset 4px 0 ${D.lightcol[l]}">${ico(D.lightkind[l], 15)} ${esc(l)}</td>${gs.map(g => { const r = D.fs[`${loc}|${l}|${g}`];
+    return r.na ? `<td class="muted">—</td>` : `<td><b>${esc(r.ev.replace("Meter ",""))}</b><br><span class="muted">${esc(r.mode.startsWith("S")?r.mode.split("· ")[1]+" S":(r.mode.startsWith("M")?"M":r.ss))}</span></td>`; }).join("")}</tr>`).join("")}</table></div>`;
+}
+function renderGuide(){
+  const g = D.garden;
+  $("#v-guide").innerHTML = `
+  <div class="card"><h2>Base + matrix in 9 steps</h2><div class="list">${D.howto.map(s => `<div class="item"><div class="slot">${s.n}</div><div><b>${esc(s.t)}</b><p>${esc(s.b)}</p></div></div>`).join("")}</div></div>
+  <div class="card out"><h2>Perfect exposure checklist</h2>${D.checklist.map(c => row(c.t, c.b)).join("")}</div>
+  <div class="card"><h2>Light direction · no settings</h2><div class="list">${D.directions.map(d => `<div class="item" style="grid-template-columns:1fr"><div><b>${esc(d.d)}</b><p>${esc(d.pos)}</p><p><b style="display:inline;color:var(--accent)">Expose:</b> ${esc(d.exp)}</p></div></div>`).join("")}</div></div>
+  <div class="card"><h2>Indoor matrix · Exp. Comp. / Min. SS (Classic)</h2>${matrixTable("Indoor")}<p class="tip">Swipe sideways. S = mode S at that speed (flicker). Dreamy: one step up.</p></div>
+  <div class="card"><h2>Outdoor matrix · Exp. Comp. / Min. SS (Classic)</h2>${matrixTable("Outdoor")}<p class="tip">Silhouette: mode M, ISO 100, shutter until the meter reads the value.</p></div>
+  <div class="card out"><h2>What's blooming · NCR</h2>${g.calendar.map(c => row(c.w, c.f)).join("")}</div>
+  <div class="card out"><h2>Flower rules</h2>${g.rules.map(c => row(c.t, c.b)).join("")}</div>
+  <div class="card"><h2>Use it like an app</h2><p style="margin:0">iPhone: open this page in Safari › Share › <b>Add to Home Screen</b>. Your last choices are remembered on this phone. After the first visit it also works offline.</p></div>`;
+}
+
+/* ---------------- routing */
+const VIEWS = ["settings","garden","field","recipes","guide"];
+function route(){
+  const t = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "settings";
+  VIEWS.forEach(v => $("#v-" + v).classList.toggle("on", v === t));
+  document.querySelectorAll("#tabs a").forEach(a => a.classList.toggle("on", a.dataset.t === t));
+  $("#title").textContent = TITLES[t][0]; $("#subtitle").textContent = TITLES[t][1];
+  if (t !== "recipes") closeRecipe();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+fetch("data.json").then(r => r.json()).then(d => {
+  D = d;
+  $("#film").innerHTML = D.recipes.filter(r => /^\d/.test(r.num)).slice(0, 25).map(r => `<i style="background:${r.soft}"></i>`).join("");
+  initSettings(); initGarden(); renderField(); renderRecipes(); renderGuide(); route();
+}).catch(() => { $("main").innerHTML = '<div class="card"><div class="note">Could not load the settings data. Check your connection and reload the page.</div></div>'; });
+})();
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").catch(function(){}); }
+</script>
+</body>
+</html>
